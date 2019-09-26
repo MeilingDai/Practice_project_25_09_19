@@ -55,9 +55,10 @@ tidy_BOM_stations
 write_csv(tidy_BOM_stations , "results/tidy_BOM_stations .csv")
 
 
+
 new_BOM_data <- full_join(BOM_data, tidy_BOM_stations)
 new_BOM_data 
-state_temp<- new_BOM_data %>%  separate(col = Temp_min_max, into = c("Temp_min", "Temp_max"), sep = "/") %>%   #seperate column of Temp_min_max, into = column "Temp_min" and "Temp_max") 
+state_temp <- new_BOM_data %>%  separate(col = Temp_min_max, into = c("Temp_min", "Temp_max"), sep = "/") %>%   #seperate column of Temp_min_max, into = column "Temp_min" and "Temp_max") 
   mutate(daily_tem_diff = as.numeric(Temp_max) - as.numeric(Temp_min)) %>%        #creat a new column as daily_tem_diff to calculate daily tem diff    
   filter(daily_tem_diff != "NA") %>%                                              #filter rows for daily_tem_diff with meaningful numbers
   group_by(state) %>%                                                             #group data by state
@@ -67,4 +68,15 @@ state_temp
 write_csv(state_temp, "results/state_temp.csv") 
           
 
-# Question 4
+# Question 4: Does the westmost (lowest longitude) or eastmost (highest longitude) weather station in our dataset have a higher average solar exposure?
+new_BOM_data %>% filter(Solar_exposure != "-") %>% 
+  mutate(lon = as.numeric(lon)) %>% 
+  mutate(Solar_exposure = as.numeric(Solar_exposure)) %>% 
+  filter(lon == max(lon)) %>% 
+  summarise(aver_solar_exp = mean(Solar_exposure))
+
+new_BOM_data %>% filter(Solar_exposure != "-") %>% 
+  mutate(lon = as.numeric(lon)) %>% 
+  mutate(Solar_exposure = as.numeric(Solar_exposure)) %>% 
+  filter(lon == min(lon)) %>% 
+  summarise(aver_solar_exp = mean(Solar_exposure))
